@@ -1,0 +1,10 @@
+{
+  "title": "Essay mind map: social media and the travel experiences of young people",
+  "center": "Social media has a positive influence on young travellers: to what extent do you agree?",
+  "branches": [
+    {"label": "Planning and inspiration", "items": ["hidden places and local tips", "photos that suggest routes", "save posts for later"]},
+    {"label": "Practical help", "items": ["live reviews and prices", "maps and transport info", "advice from solo travellers"]},
+    {"label": "Problems", "items": ["edited images raise expectations", "overtourism in small places", "safety and privacy risks"]},
+    {"label": "My position", "items": ["agree, with conditions", "depends on how it is used", "consent before posting people"]}
+  ]
+}

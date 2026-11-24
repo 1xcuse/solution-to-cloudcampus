@@ -1,0 +1,15 @@
+{
+  "title": "Climate change: from causes to everyday action",
+  "subtitle": "an EAP course Academic Language and Communication | Your Name",
+  "issue_title": "The issue",
+  "issue": "Scientific and technological progress has made daily life easier, but it has also increased greenhouse gas emissions, waste and pressure on natural resources.",
+  "columns": [
+    {"title": "Causes", "items": ["Burning fossil fuels for electricity, heating and transport", "Deforestation and intensive farming, which reduce carbon storage", "Industrial production and growing amounts of waste"]},
+    {"title": "Effects", "items": ["More frequent heatwaves, fires and floods (Shaw, n.d.)", "Rising sea levels threaten low-lying coastal cities", "Crop damage raises food prices (Vocal Media, 2025)"]},
+    {"title": "What individuals can do", "items": ["Use public transport, walk or cycle for short trips", "Eat less meat and cut food waste", "Repair devices and recycle properly"]}
+  ],
+  "plan_title": "My plan for the next month",
+  "plan_items": ["Take the bus or train to campus at least three days a week", "Have two meat-free dinners a week", "Keep a reusable bottle", "Write one paragraph a week using two sources"],
+  "takeaway": "Small, repeated choices by many people support the larger changes that governments and companies must make.",
+  "references": ["Shaw, N. (n.d.). What is climate change? [Reading]. an EAP course textbook, Chapter 5.", "Vocal Media. (2025). Climate change: Its effects and solutions. [Reading]. an EAP course textbook, Chapter 5."]
+}

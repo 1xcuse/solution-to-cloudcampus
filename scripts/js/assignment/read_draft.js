@@ -1,0 +1,1 @@
+(function(){ return window.__draft || "none"; })()

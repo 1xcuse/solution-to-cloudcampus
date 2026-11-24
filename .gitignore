@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+inventory.json
+inventory.md
+*_results.json
+verify_progress.json
+h5p_answer_audit.json
+scan/
+.preview/

@@ -1,0 +1,12 @@
+{
+  "title": "Editing practice: climate paragraph",
+  "subtitle": "Draft 2, checked against the checklist",
+  "text": "Individual actions alone cannot stop climate change, but they can reduce the damage. Shaw (n.d.) explain that most greenhouse gas emissions come from burning fossil fuels for electricity, heating and transport. For example, a student who takes the bus produces less carbon than a student who drives. Vocal Media (2025) adds that small changes spread through social groups. This is why practical steps taken by individuals support larger changes.",
+  "annotations": [
+    {"token": "explain", "note": "explains: add -s", "sub": "(third person)"},
+    {"token": "less", "note": "quantify? add a source", "sub": "e.g. about 2 kg of CO2"},
+    {"token": "small", "note": "good evidence, keep", "sub": "link back to the question"}
+  ],
+  "checklist": "Checklist: topic sentence ok / 2 sources cited / explanation missing after evidence?",
+  "next_step": "Next step: explain how the bus example supports the topic sentence."
+}

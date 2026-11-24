@@ -1,0 +1,8 @@
+{
+  "course_id": 12345,
+  "items": [
+    {"id": 666033, "mode": "online", "text_path": "content/666033.md"},
+    {"id": 668591, "mode": "file", "file_path": "artifacts/668591.docx"},
+    {"id": 671935, "mode": "file", "file_path": "audio/671935.m4a"}
+  ]
+}
