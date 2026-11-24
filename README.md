@@ -62,7 +62,7 @@ python3 scripts/browser_doctor.py
 
 ```bash
 # 0) 放到 DSH 技能目录（也可以直接用 scripts/ 下的命令）
-cp -R skill/ ~/.dsh/skills/solution-to-cloudcampus
+git clone https://github.com/1xcuse/solution-to-cloudcampus.git ~/.dsh/skills/solution-to-cloudcampus
 
 # 1) 浏览器自检
 python3 scripts/browser_doctor.py
