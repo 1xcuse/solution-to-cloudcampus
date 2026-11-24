@@ -1,37 +1,46 @@
 # Solution to CloudCampus
 
-**CloudCampus（Moodle 4）课程作业解决方式**：扫描课程 → 完成 H5P 互动练习 → 生成口语录音 / 写作 / 思维导图 / 海报 → 提交在线文本或文件作业 → 核验成绩与提交记录。
+**把 CloudCampus 当前界面上的所有任务，一次做完。**
 
-把「CloudCampus 上一门课的练习和作业全部做完、交齐、可核验」做成可复用的自动化流程。
+打开你的课程页 / 某一周页面 / 成绩报告 / 作业列表，工具会先读出**当前界面上出现的全部任务**，然后按任务逐个完成、校验，最后告诉你还剩什么。它面向的是「这一屏里的任务」，不是只盯成绩单上的计分项。
 
 [English](#english) · [技能文档](SKILL.md) · [浏览器矩阵](references/01-browser-bridge.md) · [实测记录](docs/verification.md)
 
 ---
 
-## 这是给谁用的
+## 这是什么
 
-给正在用 CloudCampus（Moodle 4）上课、需要完成大量重复练习和作业的人：
+一个跑在真实浏览器里的 CloudCampus（Moodle 4）任务完成器：
 
-- 一门课几十个 H5P 互动练习，题型多、要一个个点；
-- 每周的口语作业要录音、写作作业要交 Word/图片；
-- 交完还要自己核对成绩：哪些做了、哪些 0 分、哪些作业还没提交。
+- **输入**：你当前打开的 CloudCampus 界面（课程页、周页面、活动页、作业总表、成绩报告都可以）；
+- **过程**：扫描出这一屏里所有要处理的东西，形成一个任务清单，逐个执行；
+- **输出**：任务完成状态、成绩/提交记录、还剩哪些没做、为什么没做。
 
-这个项目把这些步骤做成命令行工具，用你已经登录的浏览器操作，不碰账号密码。
+它不处理登录和验证码，直接复用你已登录的浏览器会话；只操作你自己的账号。
 
-## 能做什么
+## 它把「当前界面」里的什么当作任务
 
-| 能力 | 说明 |
+| 界面上的任务 | 工具怎么处理 |
 |---|---|
-| 课程扫描 | 读取成绩报告 + 课程索引，生成 72 项级别的清单：活动 id、类型、所属周、权重、当前成绩、作业题目与提交形式 |
-| H5P 互动练习 | 支持 DragText、Blanks、FindTheWords、SortParagraphs、QuestionSet、Flashcards、InteractiveBook、mod_h5pactivity 等题型，自动完成并核对满分 |
-| 阅读类电子书记分 | InteractiveBook 没有题，默认只显示未评分；用 `H5P.setFinished` 把「完成」记入成绩 |
-| 在线文本作业 | 自动填入 Atto 编辑器并保存，自动识别服务端字数上限错误 |
-| 文件作业 | docx / 图片 / 音频通过 DataTransfer 注入 Moodle filemanager 上传，不依赖系统文件对话框 |
-| 口语录音 | macOS `say` + `afconvert` 生成 m4a（含低沉英音预设），自动提交到 File submissions |
-| 写作生成 | 按题型写 reflection / paragraph / essay / summary，按去 AI 味规则润色（不堆模板句、不用破折号、写具体细节） |
-| 图片作业 | 生成思维导图、学术海报、「批改过的手写作业照片」 |
-| 成绩与作答审计 | 核对每个计分项、每份作业的提交状态、每个 H5P 的 review 页是否真的记录了作答 |
-| 多浏览器 | Edge 优先，也支持 Safari、Chrome 系、CDP 模式、W3C WebDriver（Firefox / Windows Edge） |
+| H5P 互动练习（拖词、填空、找词、排序、题目集、单词卡、阅读电子书…） | 识别题型 → 用内容实例 API 作答 → 点 Check/Submit → 核对分数与作答记录 |
+| 阅读类电子书（只有翻页，没有题） | 逐章翻完并记录「完成」；需要记成绩时写入完成状态 |
+| 口语录音任务 | 生成 m4a 录音 → 上传到作业的文件提交区 |
+| 写作类任务（reflection / paragraph / essay / summary / 句子练习） | 按题目和字数要求写稿 → 填在线文本或生成 docx |
+| 图片类任务（思维导图 / 海报 / 批改照片） | 用 JSON spec 生成 PNG/JPG → 作为文件提交 |
+| 文件类作业 | 通过页面内的 filemanager 上传（不走系统对话框） |
+| 反馈 / 问卷 | 有题目时逐题填写并提交；没有题目时如实报告「该活动没有可填内容」 |
+| 课程里的阅读材料、文件、页面 | 扫描出来列进任务清单，可按需下载/归档/打开 |
+| 作业提交 | 在线文本或文件，保存后核对「Submitted for grading」 |
+| 成绩与完成状态 | 重新读成绩报告 / 作业状态 / H5P review 页，确认真的完成了 |
+
+> 计分只是任务的一种属性。**没有被计分的任务（阅读、反馈、资源）同样会被识别和完成**，这正是它和「刷分脚本」的区别。
+
+## 工作方式（四步）
+
+1. **扫描当前界面**：读课程索引 + 页面列表（可选叠加成绩报告），得到任务清单：任务 id、类型、所属周、题目、提交形式、当前状态。
+2. **逐个执行**：按任务类型分派到对应执行器（H5P 解题器、写作/录音/图片生成器、作业提交器）。
+3. **校验**：每完成一个就重新读页面/成绩/提交状态，不信任点击返回值。
+4. **报告**：输出完成情况、失败原因、剩余任务；对无法自动完成的任务（比如没有题目的反馈、离线考试）明确说明。
 
 ## 浏览器支持（Edge 优先）
 
@@ -59,22 +68,22 @@ cp -R skill/ ~/.dsh/skills/solution-to-cloudcampus
 # 1) 浏览器自检
 python3 scripts/browser_doctor.py
 
-# 2) 扫描课程（从课程 URL 的 id= 拿 course id）
+# 2) 扫描当前界面的任务（course id 从课程 URL 的 id= 拿）
 python3 scripts/scan_course.py --course-id 12345 --deep --out scan
 
-# 3) 做 H5P 练习
+# 3) 完成 H5P 类任务
 python3 scripts/solve_h5p.py --course-id 12345 --from-scan scan/inventory.json
 
-# 4) 提交作业：先预览表单，再真提交
+# 4) 完成作业类任务：先预览表单，再真提交
 python3 scripts/submit_assignments.py --manifest manifest.json --inspect
 python3 scripts/submit_assignments.py --manifest manifest.json
 
-# 5) 审计成绩、提交状态、H5P 作答记录
+# 5) 核对任务是否真的完成
 python3 scripts/verify_progress.py --course-id 12345 --manifest manifest.json
 python3 scripts/audit_h5p_answers.py --course-id 12345
 ```
 
-示例 manifest：
+示例 manifest（把「任务」映射到本地内容）：
 
 ```json
 {
@@ -85,16 +94,6 @@ python3 scripts/audit_h5p_answers.py --course-id 12345
   ]
 }
 ```
-
-## 工作原理（简版）
-
-1. **复用已登录会话**：通过 AppleScript / CDP / WebDriver 在真实浏览器里执行 JS，不处理登录和验证码。
-2. **导航竞态处理**：先轮询 URL 命中目标 id，再等页面就绪和业务标记（H5P 实例挂载），否则结果会写到上一个活动。
-3. **H5P 用内容实例自己的 API**：`H5P.instances[0]` 的 droppables/draggables、cloze、grid、`getQuestions()` 等，按题型分派。
-4. **Moodle 成绩来自 xAPI**：Check 后 collector 把 `result.score` 发到 `ajax.php?action=xapiresult`；`mod_hvp` 取最高分。
-5. **文件上传**：用 `DataTransfer` 把 file 注入 `input[name=repo_upload_file]`，进 draft area 后保存，绕开系统文件对话框。
-6. **字数上限**：解析错误页里的 `word limit N words / attempting M words`，改短后用同一条 manifest 重交。
-7. **审计而不是相信点击返回值**：每次操作后重新读成绩报告 / 作业状态 / H5P review 页。
 
 ## 目录结构
 
@@ -107,11 +106,11 @@ scripts/
 ├─ cdp_bridge.mjs           CDP 桥（Node）
 ├─ browser_doctor.py        浏览器能力检查
 ├─ launch_edge_cdp.sh       启动 Edge（独立 profile）+ 调试端口
-├─ scan_course.py           课程/作业/成绩扫描
-├─ solve_h5p.py             H5P 完成器（含作答核对、阅读书补分）
-├─ submit_assignments.py    作业提交（在线文本 / 文件）
-├─ verify_progress.py       成绩 + 提交状态审计
-├─ audit_h5p_answers.py     H5P review 页作答记录审计
+├─ scan_course.py           扫描当前界面的任务清单
+├─ solve_h5p.py             H5P 类任务完成器（含作答核对、阅读书补分）
+├─ submit_assignments.py    作业类任务提交（在线文本 / 文件）
+├─ verify_progress.py       完成状态核对（成绩 + 提交）
+├─ audit_h5p_answers.py     H5P review 页作答记录核对
 ├─ tts_gen.py               离线 TTS → m4a
 ├─ gen_docx.py              文本 → Word
 ├─ gen_visuals.py           思维导图 / 海报 / 批改照片
@@ -123,7 +122,7 @@ tests/smoke.sh              离线自检
 
 ## 实测记录（脱敏）
 
-在一门真实的 EAP 课程上完整跑通（约 72 个计分项）：
+在一门真实的 EAP 课程上，用它把当前界面里出现的任务全部处理完（约 72 个计分项 + 阅读/反馈等非计分任务）：
 
 - **48/48 H5P 练习满分**（含阅读类电子书补记完成）；
 - **24/24 作业 Submitted for grading**（8 份口语录音 + 16 份写作/图文）；
@@ -139,13 +138,12 @@ tests/smoke.sh              离线自检
 - 不修改老师评分、不延期 deadline；作业显示未评分是老师还没批，不代表没交。
 - 口语录音是 **AI 合成音**（系统 TTS 近似），不是真人录音；使用前请确认课程对 AI 生成内容的规定。
 - 阅读类 H5P 的「补分」是把完成记入成绩，不是做题得分；不需要可以跳过。
+- 没有题目的反馈/问卷、离线考试等任务无法自动完成，工具会明确报告，不会假装完成。
 - 引用只用课程材料里确实出现的来源，不伪造数据。
 
 ## English
 
-**Solution to CloudCampus** is a browser-automation toolkit for Moodle 4 / CloudCampus coursework:
-scan a course, solve its H5P exercises, generate speaking audio / writing / mind maps / posters,
-submit online-text or file assignments, and verify grades plus submission records.
+**Solution to CloudCampus** is a browser-automation tool that finishes *every task on the CloudCampus page you are looking at* — H5P exercises, reading steps, speaking recordings, writing tasks, mind maps/posters, file submissions, feedback forms, and the rest of the current interface. It scans the page first, builds a task list, executes each task, and verifies completion, instead of only chasing graded items.
 Supports Edge (primary), Safari, Chromium-family via CDP, and W3C WebDriver (Firefox / Edge on Windows).
 It reuses the user's own logged-in browser session and never handles credentials.
 
